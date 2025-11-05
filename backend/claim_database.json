@@ -1,0 +1,19 @@
+{
+  "claims": [
+    {
+      "claim": "The Earth is flat",
+      "verdict": "false",
+      "source": "https://en.wikipedia.org/wiki/Spherical_Earth"
+    },
+    {
+      "claim": "COVID-19 vaccines contain microchips",
+      "verdict": "false",
+      "source": "https://en.wikipedia.org/wiki/COVID-19_vaccine"
+    },
+    {
+      "claim": "Neil Armstrong landed on the moon in 1969",
+      "verdict": "true",
+      "source": "https://en.wikipedia.org/wiki/Apollo_11"
+    }
+  ]
+}
