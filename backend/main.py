@@ -1,4 +1,3 @@
-# --- Quiet mode switches: add BEFORE library imports ---
 import os, warnings
 
 # Hide TensorFlow INFO/WARNING logs (and oneDNN notes) without affecting execution
