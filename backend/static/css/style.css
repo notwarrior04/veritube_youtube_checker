@@ -1,0 +1,6 @@
+/* static/css/style.css */
+body { background: #f6f7fb; }
+.navbar { background: linear-gradient(90deg,#111827,#1f2937); }
+.card, .tab-content { border-radius: 12px; }
+pre { white-space: pre-wrap; word-break: break-word; }
+.badge { font-weight: 600; }
