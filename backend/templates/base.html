@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}VeriTube{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"> <!-- [web:84] -->
+    <style>
+      :root {
+        --bg: #0b1020; --bg-2:#0e1530; --panel:#0f172a; --muted:#94a3b8;
+        --primary:#7c3aed; --accent:#22d3ee; --border:#1f2937;
+      }
+      body { background: radial-gradient(1200px 800px at 20% 0%, #101936, #0a0f1f 60%) fixed; color:#e5e7eb }
+      .card { border-radius: 14px; background: var(--panel); color:#e5e7eb; border:1px solid var(--border) }
+      .elevation { box-shadow: 0 10px 30px rgba(0,0,0,.35) }
+      .glass-panel { background: rgba(17,24,39,.6); backdrop-filter: blur(10px); border:1px solid rgba(148,163,184,.15) }
+      .nav-tabs-modern .nav-link { color:#cbd5e1 }
+      .nav-tabs-modern .nav-link.active { color:#fff; background: linear-gradient(90deg,var(--primary),var(--accent)); border:0 }
+      .nav-tabs-modern .nav-link:not(.active):hover { color:#fff }
+      pre.modern-pre { white-space: pre-wrap; word-break: break-word; line-height: 1.55; font-size:.95rem }
+      .list-group .list-group-item { border-color: var(--border) }
+      .btn-primary { background: linear-gradient(90deg,var(--primary),var(--accent)); border:0 }
+      .btn-outline-light { border-color:#cbd5e1; color:#e5e7eb }
+      .text-secondary { color: var(--muted) !important }
+      .badge { font-weight:600 }
+
+      /* Sophisticated tall navbar with animated gradient + glass */
+      .vt-nav {
+        position: sticky; top: 0; z-index: 1030;
+        background: linear-gradient(100deg, rgba(14,20,35,.85), rgba(15,23,42,.85));
+        border-bottom: 1px solid rgba(148,163,184,.15);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        overflow: clip;
+      }
+      .vt-nav-tall { padding: 18px 0; }
+      @media (min-width: 992px) { .vt-nav-tall { padding: 18px 0; } }
+      .vt-nav::before {
+        content: ""; position: absolute; inset: -20% -10% auto -10%; height: 160%;
+        background: radial-gradient(40% 60% at 20% 0%, rgba(124,58,237,.12), transparent 60%),
+                    radial-gradient(40% 60% at 80% 0%, rgba(34,211,238,.12), transparent 60%),
+                    linear-gradient(90deg, rgba(124,58,237,.08), rgba(34,211,238,.08));
+        filter: blur(24px);
+        animation: vtShift 14s ease-in-out infinite alternate;
+        pointer-events: none;
+      }
+      @keyframes vtShift {
+        0% { transform: translateY(-6px); opacity: .9; }
+        100% { transform: translateY(6px); opacity: 1; }
+      }
+      .vt-brand { color:#e5e7eb; font-weight:700; letter-spacing:.3px }
+      .vt-logo {
+        width: 34px; height: 34px; border-radius: 8px; position: relative; isolation: isolate;
+        background: conic-gradient(from 210deg, #7c3aed, #22d3ee, #a78bfa, #7c3aed);
+        box-shadow: 0 0 22px rgba(124,58,237,.35), 0 0 14px rgba(34,211,238,.2);
+      }
+      .vt-logo::after {
+        content:""; position:absolute; inset:4px; border-radius:6px;
+        background: radial-gradient(100% 100% at 30% 30%, #0b1020 30%, rgba(11,16,32,.6) 100%);
+      }
+      .vt-wordmark {
+        font-size: 1.28rem; line-height: 1;
+        background: linear-gradient(90deg, #eef2ff, #cbd5e1 55%, #ffffff);
+        -webkit-background-clip: text; background-clip: text; color: transparent;
+        text-shadow: 0 0 18px rgba(124,58,237,.18);
+      }
+      .vt-toggle {
+        border: 1px solid rgba(148,163,184,.25); color: #e5e7eb;
+        background: linear-gradient(180deg, rgba(17,24,39,.9), rgba(15,23,42,.6));
+        border-radius: 999px; padding: .45rem .7rem; line-height: 1;
+        transition: transform .15s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
+      }
+      .vt-toggle:hover, .vt-toggle:focus-visible {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 18px rgba(0,0,0,.35), 0 0 0 1px rgba(124,58,237,.25) inset;
+        border-color: rgba(124,58,237,.45);
+        outline: none;
+      }
+      .vt-nav::after {
+        content:""; position:absolute; left:0; right:0; bottom:-1px; height:14px; pointer-events:none;
+        background: radial-gradient(60% 18px at 50% 0%, rgba(124,58,237,.22), rgba(0,0,0,0) 70%);
+      }
+
+      /* LIGHT THEME OVERRIDES VIA BOOTSTRAP COLOR MODES */
+      html[data-bs-theme="light"] body {
+        color:#0b1020;
+        background: radial-gradient(1200px 800px at 20% 0%, #eef2ff, #ffffff 60%) fixed;
+      }
+      html[data-bs-theme="light"] .card { background:#ffffff; color:#0b1020; border:1px solid #e5e7eb }
+      html[data-bs-theme="light"] .glass-panel { background: rgba(255,255,255,.7); border-color: rgba(15,23,42,.08) }
+      html[data-bs-theme="light"] .nav-tabs-modern .nav-link { color:#334155 }
+      html[data-bs-theme="light"] .btn-outline-light { color:#0b1020; border-color:#94a3b8 }
+      html[data-bs-theme="light"] .vt-nav {
+        background: linear-gradient(100deg, rgba(250,250,253,.85), rgba(244,247,255,.85));
+        border-bottom: 1px solid rgba(15,23,42,.08);
+      }
+      html[data-bs-theme="light"] .vt-logo {
+        box-shadow: 0 0 10px rgba(124,58,237,.25), 0 0 8px rgba(34,211,238,.18);
+      }
+      html[data-bs-theme="light"] .vt-wordmark {
+        background: linear-gradient(90deg, #111827, #334155 55%, #0b1020);
+        -webkit-background-clip: text; background-clip: text; color: transparent;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="vt-nav vt-nav-tall mb-4">
+  <div class="container d-flex align-items-center">
+    <a class="vt-brand d-flex align-items-center text-decoration-none" href="{{ url_for('index') }}">
+      <span class="vt-logo me-3"></span>
+      <span class="vt-wordmark">VeriTube</span>
+    </a>
+    <div class="ms-auto d-flex align-items-center gap-2">
+      <button class="btn btn-sm vt-toggle" id="themeToggle" type="button" aria-label="Toggle theme">◐</button>
+    </div>
+  </div>
+</nav>
+
+
+    <main class="container">
+      {% for m in get_flashed_messages() %}
+        <div class="alert alert-warning">{{ m }}</div>
+      {% endfor %}
+      {% block content %}{% endblock %}
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script> <!-- [web:84] -->
+    <script>
+      // Bootstrap 5.3 color modes with persistence
+      const KEY = 'vt-theme';
+      const root = document.documentElement; // <html>
+      const saved = localStorage.getItem(KEY);
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const initial = saved || (prefersDark ? 'dark' : 'light');
+      root.setAttribute('data-bs-theme', initial);
+      document.getElementById('themeToggle')?.addEventListener('click', () => {
+        const cur = root.getAttribute('data-bs-theme');
+        const next = cur === 'dark' ? 'light' : 'dark';
+        root.setAttribute('data-bs-theme', next);
+        localStorage.setItem(KEY, next);
+      });
+    </script>
+  </body>
+</html>

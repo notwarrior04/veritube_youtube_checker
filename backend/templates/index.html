@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}VeriTube - Fact Checker for YouTube Video{% endblock %}
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card p-4 p-md-5 elevation">
+        <h1 class="h4 mb-2">Verify a YouTube Video</h1>
+        <p class="text-secondary">Paste a video link to download audio, transcribe, fact‑check, and summarize.</p>
+        <form action="{{ url_for('analyze') }}" method="post" class="d-flex gap-2">
+          <input name="url" type="url" class="form-control" placeholder="https://www.youtube.com/watch?v=..." required>
+          <button class="btn btn-primary">Analyze</button>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}

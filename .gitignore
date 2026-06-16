@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.webm
+*.mp4
+*.mp3
+instance/
+backend/instance/
+*.pyc
+*.pyo
+transcription.txt
+backend/transcription.txt
