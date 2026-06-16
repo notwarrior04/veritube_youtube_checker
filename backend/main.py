@@ -1,3 +1,11 @@
+import sys
+if sys.platform.startswith('win'):
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+        sys.stderr.reconfigure(encoding='utf-8')
+    except Exception:
+        pass
+
 import os, warnings
 
 # Hide TensorFlow INFO/WARNING logs (and oneDNN notes) without affecting execution
@@ -34,7 +42,11 @@ from summarizer import summarize_transcript
 def extract_title(url):
     try:
         # Silence SABR/nsig advisories from yt-dlp while extracting metadata
-        ydl_opts = {"quiet": True, "no_warnings": True}  # keeps real exceptions but hides advisories [web:92]
+        ydl_opts = {
+            "quiet": True,
+            "no_warnings": True,
+            "js_runtimes": {"node": {}}
+        }  # keeps real exceptions but hides advisories [web:92]
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
             return info.get('title', ''), info

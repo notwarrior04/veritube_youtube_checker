@@ -24,9 +24,7 @@ def download_audio(url, output_path="audio.mp3"):
     ydl_opts = {
         # Prefer audio-only; yt-dlp will auto-fallback (HLS/DASH) under SABR
         "format": "ba/bestaudio",
-        # Try clients that often avoid web-client SABR throttling when available
-        # 'extractor_args' is used by yt-dlp to tweak per-extractor behavior
-        "extractor_args": {"youtube": {"player_client": ["ios", "tv"]}},  # best-effort; harmless if ignored
+        "js_runtimes": {"node": {}},
         # Output naming
         "outtmpl": outtmpl,
         # Ensure ffmpeg extraction to MP3
