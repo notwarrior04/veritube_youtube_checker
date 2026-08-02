@@ -42,9 +42,7 @@ flowchart TD
 
 ---
 
-## 🚀 How to Run the Project
-
-Follow these simple commands to activate your environment and launch the web server or CLI runner.
+## 🚀 Setup & How to Run
 
 ### 1. Prerequisites
 - **Python 3.10+** installed on your system.
@@ -55,18 +53,35 @@ Follow these simple commands to activate your environment and launch the web ser
 
 ---
 
-### 2. Running the Web Application (Flask UI)
+### 2. Create & Activate Virtual Environment
 
-Open **PowerShell** in the project root directory (`VeriTube - YouTube Fact Checker`) and execute the following exact commands:
+Open **PowerShell** in the root directory (`VeriTube - YouTube Fact Checker`) and execute:
 
 ```powershell
-# Step 1: Activate the virtual environment
+# Step 1: Create the virtual environment named .venv
+python -m venv .venv
+
+# Step 2: Activate the virtual environment
 .\.venv\Scripts\activate
 
-# Step 2: Navigate to the backend directory
+# Step 3: Install all required dependencies
+pip install -r requirements.txt
+
+# Step 4: Download the spaCy NLP model
+python -m spacy download en_core_web_sm
+```
+
+---
+
+### 3. Running the Web Application (Flask UI)
+
+After activating the environment, run:
+
+```powershell
+# Navigate to the backend directory
 cd backend
 
-# Step 3: Launch the Flask web server
+# Launch the Flask web server
 python app.py
 ```
 
@@ -75,7 +90,7 @@ Once launched, open your browser and navigate to:
 
 ---
 
-### 3. Running the Terminal CLI Version
+### 4. Running the Terminal CLI Version
 
 If you prefer running VeriTube directly from the command line:
 
