@@ -20,24 +20,24 @@
 
 ```mermaid
 flowchart TD
-    A["1. YouTube Link Submitted"] --> B["2. Audio & Metadata Extraction (yt-dlp)"]
-    B --> C["3. Whisper Audio Transcription"]
-    C --> D{"Is it a Song / Music Video?"}
+    A["1. YouTube Link Submitted (Flask & Bootstrap 5 Web UI)"] --> B["2. Audio & Metadata Download (yt-dlp)"]
+    B --> C["3. Speech-to-Text Transcription (OpenAI Whisper)"]
+    C --> D{"Is it a Song / Music Video? (spaCy NLP & Heuristics)"}
     
     D -- "YES 🎵" --> E["Skip Fact-Check & Clickbait (0 Claims)"]
-    D -- "NO 🎙️" --> F["4. Clickbait & Misleading Title Analysis"]
+    D -- "NO 🎙️" --> F["4. Clickbait & Misleading Analysis (SentenceTransformers)"]
     
-    F --> G["5. Extract Factual Claims"]
+    F --> G["5. Extract Factual Claims (Gemini 2.5 Flash / spaCy)"]
     G --> H{"Check Claims against Sources"}
     
-    H -- "Cloud AI Engine" --> I["Gemini 2.5 Flash Verification"]
-    H -- "Edge AI Engine" --> J["Local DB + Serper Search + Wikipedia NLI"]
+    H -- "Cloud AI Engine" --> I["Fact Verification (Gemini 2.5 Flash + Web Grounding)"]
+    H -- "Edge AI Engine" --> J["Fact Verification (Serper.dev Search + Wikipedia API + BART NLI)"]
     
-    I --> K["6. Summarization & Verdict Assembly"]
+    I --> K["6. Summarization & Verdict Assembly (Gemini 2.5 Flash / DistilBART)"]
     J --> K
     E --> K
     
-    K --> L["7. Interactive Web UI (result.html)"]
+    K --> L["7. Interactive Dashboard Display (Flask & HTML5 Canvas)"]
 ```
 
 ---
