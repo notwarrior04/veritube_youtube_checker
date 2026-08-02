@@ -112,7 +112,7 @@ VeriTube - YouTube Fact Checker/
     ├── app.py                 # Main Flask web application routes & API
     ├── main.py                # Command-line interface runner
     ├── fact_checker.py        # Core claim extraction & NLI verification logic
-    ├── gemini_engine.py       # Google Gemini 1.5 Flash AI integration
+    ├── gemini_engine.py       # Google Gemini 2.5 Flash AI integration
     ├── clickbait_detector.py  # Sensationalism & misleading title scoring engine
     ├── summarizer.py          # Abstractive & extractive transcript summarizer
     ├── transcriber.py         # Whisper speech-to-text integration
@@ -139,7 +139,7 @@ VeriTube - YouTube Fact Checker/
 | **Speech-to-Text** | `transcriber.py` | Converts audio to transcript via OpenAI Whisper model. |
 | **Clickbait Analysis** | `clickbait_detector.py` | Measures title sensationalism vs transcript context. |
 | **Claim Verification** | `fact_checker.py` | Identifies claims and verifies entailement against sources. |
-| **Cloud AI Engine** | `gemini_engine.py` | Real-time web-grounded verification via Gemini 1.5 Flash. |
+| **Cloud AI Engine** | `gemini_engine.py` | Real-time web-grounded verification via Gemini 2.5 Flash. |
 | **Dashboard UI** | `templates/` | Renders interactive verdicts, claim cards, and transcripts. |
 
 ---
