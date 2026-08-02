@@ -33,7 +33,7 @@ flowchart TD
     H -- "Cloud AI Engine" --> I["Fact Verification (Gemini 2.5 Flash + Web Grounding)"]
     H -- "Edge AI Engine" --> J["Fact Verification (Serper.dev Search + Wikipedia API + BART NLI)"]
     
-    I --> K["6. Summarization & Verdict Assembly (Gemini 2.5 Flash / DistilBART)"]
+    I --> K["6. Summarization & Verdict Assembly (Gemini 2.5 Flash / BART-Large-CNN)"]
     J --> K
     E --> K
     
