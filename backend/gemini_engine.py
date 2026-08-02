@@ -31,21 +31,21 @@ def configure_gemini():
 # Initial configuration if key exists
 configure_gemini()
 
-def _get_model(preferred_model="gemini-2.0-flash"):
+def _get_model(preferred_model="gemini-2.5-flash"):
     configure_gemini()
     generation_config = {
         "temperature": 0.0,
         "top_p": 1.0,
         "top_k": 1,
     }
-    candidates = [preferred_model, "gemini-2.0-flash", "gemini-flash-latest", "gemini-2.5-pro", "gemini-pro"]
+    candidates = [preferred_model, "gemini-2.5-flash", "gemini-2.0-flash", "gemini-flash-latest", "gemini-2.5-pro", "gemini-pro"]
     for name in candidates:
         try:
             m = genai.GenerativeModel(model_name=name, generation_config=generation_config)
             return m
         except Exception:
             continue
-    return genai.GenerativeModel(model_name="gemini-2.0-flash", generation_config=generation_config)
+    return genai.GenerativeModel(model_name="gemini-2.5-flash", generation_config=generation_config)
 
 def gemini_extract_and_rewrite_claims(transcript_text):
     """

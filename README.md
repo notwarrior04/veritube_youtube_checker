@@ -1,6 +1,6 @@
 # 🎥 VeriTube - Automated YouTube Fact Checker & Clickbait Detector
 
-**VeriTube** is an end-to-end multimodal AI application designed to verify YouTube video content in real-time. It automatically transcribes audio, evaluates title sensationalism (clickbait/misleading scoring), extracts testable factual claims, and cross-verifies claims using **Google Gemini 2.0 Flash** or an **Edge AI Local Pipeline** (Spacy, SentenceTransformers, BART NLI, Wikipedia, and Google Serper Search).
+**VeriTube** is an end-to-end multimodal AI application designed to verify YouTube video content in real-time. It automatically transcribes audio, evaluates title sensationalism (clickbait/misleading scoring), extracts testable factual claims, and cross-verifies claims using **Google Gemini 2.5 Flash** or an **Edge AI Local Pipeline** (Spacy, SentenceTransformers, BART NLI, Wikipedia, and Google Serper Search).
 
 ---
 
@@ -8,7 +8,7 @@
 
 - **🎙️ Speech-to-Text Transcription**: Powered by OpenAI's **Whisper** model (with automatic PyTorch CUDA GPU acceleration).
 - **🧠 Dual-Engine Fact Checking**:
-  - **Cloud AI Engine**: Powered by **Google Gemini 2.0 Flash** for real-time web-grounded fact verification.
+  - **Cloud AI Engine**: Powered by **Google Gemini 2.5 Flash** for real-time web-grounded fact verification.
   - **Edge AI Local Engine**: Uses `spaCy` NLP, `SentenceTransformers` (`all-MiniLM-L6-v2`), `Facebook BART MNLI` NLI models, Wikipedia API, and Google Serper Web Search.
 - **🚨 Clickbait & Misleading Title Detection**: Algorithmic scoring that compares title hyperbolic triggers and transcript semantic alignment.
 - **🎵 Smart Music Video Guardrail**: Detects song structures/lyrics to automatically skip false claim extractions (`0 CLMS`).
@@ -30,7 +30,7 @@ flowchart TD
     F --> G["5. Extract Factual Claims"]
     G --> H{"Check Claims against Sources"}
     
-    H -- "Cloud AI Engine" --> I["Gemini 2.0 Flash Verification"]
+    H -- "Cloud AI Engine" --> I["Gemini 2.5 Flash Verification"]
     H -- "Edge AI Engine" --> J["Local DB + Serper Search + Wikipedia NLI"]
     
     I --> K["6. Summarization & Verdict Assembly"]
