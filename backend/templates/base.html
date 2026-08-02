@@ -3,127 +3,30 @@
   <head>
     <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}VeriTube{% endblock %}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"> <!-- [web:84] -->
-    <style>
-      :root {
-        --bg: #0b1020; --bg-2:#0e1530; --panel:#0f172a; --muted:#94a3b8;
-        --primary:#7c3aed; --accent:#22d3ee; --border:#1f2937;
-      }
-      body { background: radial-gradient(1200px 800px at 20% 0%, #101936, #0a0f1f 60%) fixed; color:#e5e7eb }
-      .card { border-radius: 14px; background: var(--panel); color:#e5e7eb; border:1px solid var(--border) }
-      .elevation { box-shadow: 0 10px 30px rgba(0,0,0,.35) }
-      .glass-panel { background: rgba(17,24,39,.6); backdrop-filter: blur(10px); border:1px solid rgba(148,163,184,.15) }
-      .nav-tabs-modern .nav-link { color:#cbd5e1 }
-      .nav-tabs-modern .nav-link.active { color:#fff; background: linear-gradient(90deg,var(--primary),var(--accent)); border:0 }
-      .nav-tabs-modern .nav-link:not(.active):hover { color:#fff }
-      pre.modern-pre { white-space: pre-wrap; word-break: break-word; line-height: 1.55; font-size:.95rem }
-      .list-group .list-group-item { border-color: var(--border) }
-      .btn-primary { background: linear-gradient(90deg,var(--primary),var(--accent)); border:0 }
-      .btn-outline-light { border-color:#cbd5e1; color:#e5e7eb }
-      .text-secondary { color: var(--muted) !important }
-      .badge { font-weight:600 }
-
-      /* Sophisticated tall navbar with animated gradient + glass */
-      .vt-nav {
-        position: sticky; top: 0; z-index: 1030;
-        background: linear-gradient(100deg, rgba(14,20,35,.85), rgba(15,23,42,.85));
-        border-bottom: 1px solid rgba(148,163,184,.15);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        overflow: clip;
-      }
-      .vt-nav-tall { padding: 18px 0; }
-      @media (min-width: 992px) { .vt-nav-tall { padding: 18px 0; } }
-      .vt-nav::before {
-        content: ""; position: absolute; inset: -20% -10% auto -10%; height: 160%;
-        background: radial-gradient(40% 60% at 20% 0%, rgba(124,58,237,.12), transparent 60%),
-                    radial-gradient(40% 60% at 80% 0%, rgba(34,211,238,.12), transparent 60%),
-                    linear-gradient(90deg, rgba(124,58,237,.08), rgba(34,211,238,.08));
-        filter: blur(24px);
-        animation: vtShift 14s ease-in-out infinite alternate;
-        pointer-events: none;
-      }
-      @keyframes vtShift {
-        0% { transform: translateY(-6px); opacity: .9; }
-        100% { transform: translateY(6px); opacity: 1; }
-      }
-      .vt-brand { color:#e5e7eb; font-weight:700; letter-spacing:.3px }
-      .vt-logo {
-        width: 34px; height: 34px; border-radius: 8px; position: relative; isolation: isolate;
-        background: conic-gradient(from 210deg, #7c3aed, #22d3ee, #a78bfa, #7c3aed);
-        box-shadow: 0 0 22px rgba(124,58,237,.35), 0 0 14px rgba(34,211,238,.2);
-      }
-      .vt-logo::after {
-        content:""; position:absolute; inset:4px; border-radius:6px;
-        background: radial-gradient(100% 100% at 30% 30%, #0b1020 30%, rgba(11,16,32,.6) 100%);
-      }
-      .vt-wordmark {
-        font-size: 1.28rem; line-height: 1;
-        background: linear-gradient(90deg, #eef2ff, #cbd5e1 55%, #ffffff);
-        -webkit-background-clip: text; background-clip: text; color: transparent;
-        text-shadow: 0 0 18px rgba(124,58,237,.18);
-      }
-      .vt-toggle {
-        border: 1px solid rgba(148,163,184,.25); color: #e5e7eb;
-        background: linear-gradient(180deg, rgba(17,24,39,.9), rgba(15,23,42,.6));
-        border-radius: 999px; padding: .45rem .7rem; line-height: 1;
-        transition: transform .15s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
-      }
-      .vt-toggle:hover, .vt-toggle:focus-visible {
-        transform: translateY(-1px);
-        box-shadow: 0 6px 18px rgba(0,0,0,.35), 0 0 0 1px rgba(124,58,237,.25) inset;
-        border-color: rgba(124,58,237,.45);
-        outline: none;
-      }
-      .vt-nav::after {
-        content:""; position:absolute; left:0; right:0; bottom:-1px; height:14px; pointer-events:none;
-        background: radial-gradient(60% 18px at 50% 0%, rgba(124,58,237,.22), rgba(0,0,0,0) 70%);
-      }
-
-      /* LIGHT THEME OVERRIDES VIA BOOTSTRAP COLOR MODES */
-      html[data-bs-theme="light"] body {
-        color:#0b1020;
-        background: radial-gradient(1200px 800px at 20% 0%, #eef2ff, #ffffff 60%) fixed;
-      }
-      html[data-bs-theme="light"] .card { background:#ffffff; color:#0b1020; border:1px solid #e5e7eb }
-      html[data-bs-theme="light"] .glass-panel { background: rgba(255,255,255,.7); border-color: rgba(15,23,42,.08) }
-      html[data-bs-theme="light"] .nav-tabs-modern .nav-link { color:#334155 }
-      html[data-bs-theme="light"] .btn-outline-light { color:#0b1020; border-color:#94a3b8 }
-      html[data-bs-theme="light"] .vt-nav {
-        background: linear-gradient(100deg, rgba(250,250,253,.85), rgba(244,247,255,.85));
-        border-bottom: 1px solid rgba(15,23,42,.08);
-      }
-      html[data-bs-theme="light"] .vt-logo {
-        box-shadow: 0 0 10px rgba(124,58,237,.25), 0 0 8px rgba(34,211,238,.18);
-      }
-      html[data-bs-theme="light"] .vt-wordmark {
-        background: linear-gradient(90deg, #111827, #334155 55%, #0b1020);
-        -webkit-background-clip: text; background-clip: text; color: transparent;
-      }
-    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=13.0">
   </head>
   <body>
-    <nav class="vt-nav vt-nav-tall mb-4">
-  <div class="container d-flex align-items-center">
-    <a class="vt-brand d-flex align-items-center text-decoration-none" href="{{ url_for('index') }}">
-      <span class="vt-logo me-3"></span>
-      <span class="vt-wordmark">VeriTube</span>
-    </a>
-    <div class="ms-auto d-flex align-items-center gap-2">
-      <button class="btn btn-sm vt-toggle" id="themeToggle" type="button" aria-label="Toggle theme">◐</button>
-    </div>
-  </div>
-</nav>
-
+    <nav class="vt-nav-nb">
+      <div class="container d-flex align-items-center">
+        <a class="vt-brand-nb text-decoration-none" href="{{ url_for('index') }}">
+          <span class="vt-logo-nb"></span>
+          <span>VeriTube</span>
+        </a>
+        <div class="ms-auto d-flex align-items-center gap-2">
+          <button class="btn vt-toggle-nb" id="themeToggle" type="button" aria-label="Toggle theme">Toggle Theme</button>
+        </div>
+      </div>
+    </nav>
 
     <main class="container">
       {% for m in get_flashed_messages() %}
-        <div class="alert alert-warning">{{ m }}</div>
+        <div class="alert alert-nb alert-warning">{{ m }}</div>
       {% endfor %}
       {% block content %}{% endblock %}
     </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script> <!-- [web:84] -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
       // Bootstrap 5.3 color modes with persistence
       const KEY = 'vt-theme';
@@ -138,6 +41,273 @@
         root.setAttribute('data-bs-theme', next);
         localStorage.setItem(KEY, next);
       });
+
+      // Ultra-Smooth Interactive Bulging Grid & Subtle Red Ripple Engine
+      (function() {
+        // 1. Red Spotlight Orb
+        const orb = document.createElement('div');
+        orb.id = 'cursor-glow-orb';
+        document.body.appendChild(orb);
+
+        // 2. Dynamic Bulging Grid Canvas (z-index: -2)
+        const gridCanvas = document.createElement('canvas');
+        gridCanvas.id = 'vt-grid-canvas';
+        document.body.appendChild(gridCanvas);
+        const gCtx = gridCanvas.getContext('2d');
+
+        // 3. Ripple Overlay Canvas (z-index: 99999)
+        const rippleCanvas = document.createElement('canvas');
+        rippleCanvas.id = 'vt-cursor-canvas';
+        document.body.appendChild(rippleCanvas);
+        const rCtx = rippleCanvas.getContext('2d');
+
+        function resizeCanvases() {
+          gridCanvas.width = window.innerWidth;
+          gridCanvas.height = window.innerHeight;
+          rippleCanvas.width = window.innerWidth;
+          rippleCanvas.height = window.innerHeight;
+        }
+        resizeCanvases();
+        window.addEventListener('resize', resizeCanvases);
+
+        let mouseX = window.innerWidth / 2;
+        let mouseY = window.innerHeight / 2;
+        let smoothMouseX = mouseX;
+        let smoothMouseY = mouseY;
+        let orbX = mouseX;
+        let orbY = mouseY;
+        let isHovered = false;
+        let time = 0;
+
+        const ripples = [];
+
+        function spawnRipple(x, y, maxR = 200, strength = 0.8) {
+          ripples.push({
+            x: x,
+            y: y,
+            radius: 6,
+            maxRadius: maxR,
+            speed: 3.2,
+            strength: strength,
+            alpha: 0.7
+          });
+        }
+
+        // Track Mouse
+        window.addEventListener('mousemove', (e) => {
+          mouseX = e.clientX;
+          mouseY = e.clientY;
+          orb.style.opacity = '1';
+
+          // Interactive hover check
+          const target = e.target;
+          const interactive = target && target.closest('a, button, input, textarea, select, .card-nb, .clickable, .nav-link, .btn-nb');
+          if (interactive) {
+            if (!isHovered) {
+              isHovered = true;
+              orb.classList.add('orb-hover');
+            }
+          } else {
+            if (isHovered) {
+              isHovered = false;
+              orb.classList.remove('orb-hover');
+            }
+          }
+        });
+
+        // Click Ripple Shockwave
+        window.addEventListener('click', (e) => {
+          spawnRipple(e.clientX, e.clientY, 320, 1.4);
+          setTimeout(() => spawnRipple(e.clientX, e.clientY, 220, 1.0), 120);
+        });
+
+        document.addEventListener('mouseleave', () => { orb.style.opacity = '0.2'; });
+        document.addEventListener('mouseenter', () => { orb.style.opacity = '1'; });
+
+        const GRID_SIZE = 38;
+
+        // Main 60fps Animation Loop
+        function animate() {
+          time += 0.025;
+
+          // Buttery Smooth Mouse Lerping for Fluid Movement
+          smoothMouseX += (mouseX - smoothMouseX) * 0.085;
+          smoothMouseY += (mouseY - smoothMouseY) * 0.085;
+
+          // Smooth Orb Tracking & Subtle Pulse
+          const dx = smoothMouseX - orbX;
+          const dy = smoothMouseY - orbY;
+          orbX += dx * 0.1;
+          orbY += dy * 0.1;
+          const pulse = Math.sin(time * 1.5) * 0.04 + 1.0;
+          orb.style.transform = `translate3d(${orbX}px, ${orbY}px, 0) scale(${pulse})`;
+
+          // -------------------------------------------------------------
+          // A. RENDER DYNAMIC BULGING / WARPING GRID CANVAS
+          // -------------------------------------------------------------
+          gCtx.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
+
+          const cols = Math.ceil(gridCanvas.width / GRID_SIZE) + 2;
+          const rows = Math.ceil(gridCanvas.height / GRID_SIZE) + 2;
+
+          const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+          const defaultGridColor = isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.045)';
+
+          // Precompute displaced grid nodes with gentle bulge
+          const nodes = [];
+          const bulgeRadius = isHovered ? 190 : 150;
+          const bulgePower = isHovered ? 12 : 8; // Subtle, refined displacement!
+
+          for (let i = 0; i <= cols; i++) {
+            nodes[i] = [];
+            for (let j = 0; j <= rows; j++) {
+              const baseX = i * GRID_SIZE;
+              const baseY = j * GRID_SIZE;
+
+              const dist = Math.hypot(baseX - smoothMouseX, baseY - smoothMouseY);
+              let dispX = 0;
+              let dispY = 0;
+
+              // 1. Subtle Gentle Bulge Lens Effect
+              if (dist < bulgeRadius) {
+                const norm = dist / bulgeRadius;
+                const factor = Math.pow(Math.cos(norm * Math.PI * 0.5), 1.8) * bulgePower;
+                const angle = Math.atan2(baseY - smoothMouseY, baseX - smoothMouseX);
+                dispX += Math.cos(angle) * factor;
+                dispY += Math.sin(angle) * factor;
+              }
+
+              // 2. Gentle Ripple Wave Distortion
+              for (let r = 0; r < ripples.length; r++) {
+                const rip = ripples[r];
+                const rDist = Math.hypot(baseX - rip.x, baseY - rip.y);
+                const rDiff = Math.abs(rDist - rip.radius);
+                if (rDiff < 35) {
+                  const rFactor = Math.cos((rDiff / 35) * Math.PI * 0.5) * rip.strength * 10 * (1 - rip.radius / rip.maxRadius);
+                  const rAngle = Math.atan2(baseY - rip.y, baseX - rip.x);
+                  dispX += Math.cos(rAngle) * rFactor;
+                  dispY += Math.sin(rAngle) * rFactor;
+                }
+              }
+
+              nodes[i][j] = {
+                x: baseX + dispX,
+                y: baseY + dispY,
+                dist: dist
+              };
+            }
+          }
+
+          // Draw Horizontal Grid Lines
+          for (let j = 0; j <= rows; j++) {
+            for (let i = 0; i < cols; i++) {
+              const p1 = nodes[i][j];
+              const p2 = nodes[i + 1][j];
+              const minDist = Math.min(p1.dist, p2.dist);
+
+              gCtx.save();
+              if (minDist < 200) {
+                const glow = Math.pow(1 - minDist / 200, 1.8);
+                gCtx.strokeStyle = `rgba(240, 50, 65, ${0.04 + glow * 0.22})`;
+                gCtx.shadowColor = 'rgba(220, 0, 30, 0.3)';
+                gCtx.shadowBlur = glow * 6;
+                gCtx.lineWidth = 1 + glow * 0.6;
+              } else {
+                gCtx.strokeStyle = defaultGridColor;
+                gCtx.lineWidth = 1;
+              }
+
+              gCtx.beginPath();
+              gCtx.moveTo(p1.x, p1.y);
+              gCtx.lineTo(p2.x, p2.y);
+              gCtx.stroke();
+              gCtx.restore();
+            }
+          }
+
+          // Draw Vertical Grid Lines
+          for (let i = 0; i <= cols; i++) {
+            for (let j = 0; j < rows; j++) {
+              const p1 = nodes[i][j];
+              const p2 = nodes[i][j + 1];
+              const minDist = Math.min(p1.dist, p2.dist);
+
+              gCtx.save();
+              if (minDist < 200) {
+                const glow = Math.pow(1 - minDist / 200, 1.8);
+                gCtx.strokeStyle = `rgba(240, 50, 65, ${0.04 + glow * 0.22})`;
+                gCtx.shadowColor = 'rgba(220, 0, 30, 0.3)';
+                gCtx.shadowBlur = glow * 6;
+                gCtx.lineWidth = 1 + glow * 0.6;
+              } else {
+                gCtx.strokeStyle = defaultGridColor;
+                gCtx.lineWidth = 1;
+              }
+
+              gCtx.beginPath();
+              gCtx.moveTo(p1.x, p1.y);
+              gCtx.lineTo(p2.x, p2.y);
+              gCtx.stroke();
+              gCtx.restore();
+            }
+          }
+
+          // Draw subtle red grid intersection dots near cursor
+          for (let i = 0; i <= cols; i++) {
+            for (let j = 0; j <= rows; j++) {
+              const p = nodes[i][j];
+              if (p.dist < 150) {
+                const glow = 1 - p.dist / 150;
+                gCtx.save();
+                gCtx.fillStyle = '#ff283b';
+                gCtx.shadowColor = 'rgba(255, 30, 50, 0.4)';
+                gCtx.shadowBlur = glow * 6;
+                gCtx.globalAlpha = glow * 0.4;
+                gCtx.beginPath();
+                gCtx.arc(p.x, p.y, 1.5 + glow * 1.2, 0, Math.PI * 2);
+                gCtx.fill();
+                gCtx.restore();
+              }
+            }
+          }
+
+          // -------------------------------------------------------------
+          // B. RENDER SUBTLE RIPPLE SHOCKWAVES (No cursor reticle circle)
+          // -------------------------------------------------------------
+          rCtx.clearRect(0, 0, rippleCanvas.width, rippleCanvas.height);
+
+          // Update & render subtle expanding ripples
+          for (let r = ripples.length - 1; r >= 0; r--) {
+            const rip = ripples[r];
+            rip.radius += rip.speed;
+            const progress = rip.radius / rip.maxRadius;
+            rip.alpha = (1 - progress) * rip.strength * 0.5;
+
+            if (progress >= 1 || rip.alpha <= 0.01) {
+              ripples.splice(r, 1);
+              continue;
+            }
+
+            rCtx.save();
+            rCtx.globalAlpha = Math.max(0, rip.alpha);
+            rCtx.strokeStyle = 'rgba(240, 40, 60, 0.6)';
+            rCtx.shadowColor = 'rgba(255, 0, 30, 0.3)';
+            rCtx.shadowBlur = 8;
+            rCtx.lineWidth = 1.8 * (1 - progress * 0.5);
+            rCtx.beginPath();
+            rCtx.arc(rip.x, rip.y, rip.radius, 0, Math.PI * 2);
+            rCtx.stroke();
+            rCtx.restore();
+          }
+
+          requestAnimationFrame(animate);
+        }
+
+        animate();
+      })();
+    </script>
+  </body>
+</html>
     </script>
   </body>
 </html>

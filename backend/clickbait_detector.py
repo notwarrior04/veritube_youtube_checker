@@ -17,6 +17,7 @@ from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk import pos_tag
 from sklearn.feature_extraction.text import TfidfVectorizer
+from gemini_engine import is_gemini_available, gemini_detect_clickbait_discrepancy
 
 # Download NLTK resources once
 nltk.download("punkt")
@@ -46,7 +47,17 @@ def tfidf_score(text, buzzwords):
 # -------------------------
 # Main Clickbait Detector
 # -------------------------
-def detect_clickbait(title):
+def detect_clickbait(title, transcript_sample=""):
+    if is_gemini_available():
+        res = gemini_detect_clickbait_discrepancy(title, transcript_sample)
+        if res:
+            return (
+                res.get("cb_score", 0),
+                res.get("cb_reasons", []),
+                res.get("ml_score", 0),
+                res.get("ml_reasons", [])
+            )
+
     score = 0
     mislead_score = 0
     reasons = []

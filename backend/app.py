@@ -1,4 +1,13 @@
-import sys
+import os, sys, uuid, json, pathlib, gc
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
+
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 if sys.platform.startswith('win'):
     try:
         sys.stdout.reconfigure(encoding='utf-8')
@@ -6,7 +15,7 @@ if sys.platform.startswith('win'):
     except Exception:
         pass
 
-import os, uuid, json, pathlib
+import torch
 from urllib.parse import urlparse, parse_qs
 from flask import Flask, render_template, request, redirect, url_for, flash, send_file
 
@@ -16,6 +25,7 @@ from transcriber import transcribe_audio
 from fact_checker import run_fact_check, is_music_transcript
 from summarizer import summarize_transcript
 from clickbait_detector import detect_clickbait
+from gemini_engine import is_gemini_available
 import yt_dlp
 
 app = Flask(__name__, instance_relative_config=True)
@@ -67,10 +77,13 @@ def index():
 @app.route("/analyze", methods=["POST"])
 def analyze():
     url_in = request.form.get("url", "")
+    print(f"\n==========================================", flush=True)
+    print(f"📥 [1/5] Received analysis request: {url_in}", flush=True)
+    
     ok, url = is_valid_youtube_url(url_in)
     if not ok:
         flash("Please provide a valid YouTube URL.")
-        return redirect(url_for("index"))  # simple UX loop [web:85]
+        return redirect(url_for("index"))
 
     job_id = uuid.uuid4().hex
     job_dir = os.path.join(app.config['JOBS_DIR'], job_id)
@@ -79,56 +92,68 @@ def analyze():
     # 1) Title + metadata
     try:
         title, meta = extract_title_and_meta(url)
+        print(f"📌 [2/5] Extracted Video Title: \"{title}\"", flush=True)
     except Exception as e:
         flash(f"Failed to read video metadata: {e}")
-        return redirect(url_for("index"))  # graceful error [web:3]
+        return redirect(url_for("index"))
 
     # 2) Audio
-    audio_path = download_audio(url)  # expects path or None
+    print("🎧 [3/5] Downloading audio stream...", flush=True)
+    audio_path = download_audio(url)
     if not audio_path or not os.path.exists(audio_path):
         flash("Audio download failed.")
-        return redirect(url_for("index"))  # keep UI tidy [web:3]
+        return redirect(url_for("index"))
     audio_target = os.path.join(job_dir, os.path.basename(audio_path))
     if os.path.abspath(audio_path) != os.path.abspath(audio_target):
         try:
             import shutil
             shutil.copy2(audio_path, audio_target)
         except Exception:
-            audio_target = audio_path  # fallback if copy not needed
+            audio_target = audio_path
 
-    # 3) Transcription (music-aware)
+    # 3) Transcription
+    print("🎙️ [4/5] Transcribing audio with Whisper...", flush=True)
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+        gc.collect()
     language, transcript = transcribe_audio(audio_target, video_title=title)
+
+    engine_name = "Gemini Flash" if is_gemini_available() else "Edge AI (Local PyTorch / spaCy)"
 
     # 4) Music transcript fallback path
     if is_music_transcript(transcript, metadata=meta):
         summary = "Lyrics detected — summarization skipped."
         result = {
             "title": title,
+            "engine": engine_name,
             "language": language,
             "transcript": transcript,
             "music_video": True,
             "cb_score": 0, "cb_reason": "N/A",
             "ml_score": 0, "ml_reason": "N/A",
-            "fact_results": [{
-                "claim": "Lyrics / Music content",
-                "verdict": "🎵 MUSIC VIDEO",
-                "reason": "Lyrics detected — factual verification is not applicable."
-            }],
+            "fact_results": [],
             "summary": summary,
             "meta": {"id": meta.get("id"), "uploader": meta.get("uploader"), "duration": meta.get("duration")}
         }
     else:
         # 5) Clickbait/Misleading
-        cb_score, cb_reason, ml_score, ml_reason = detect_clickbait(title)
+        cb_score, cb_reason, ml_score, ml_reason = detect_clickbait(title, transcript_sample=transcript[:2000])
 
         # 6) Fact-checks
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+            gc.collect()
         fact_results = run_fact_check(transcript)
 
         # 7) Summary
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+            gc.collect()
         summary = summarize_transcript(transcript, is_music=False)
 
         result = {
             "title": title,
+            "engine": engine_name,
             "language": language,
             "transcript": transcript,
             "music_video": False,
@@ -177,4 +202,4 @@ def download_audio_route(job_id):
 
 if __name__ == "__main__":
     pathlib.Path(app.instance_path).mkdir(parents=True, exist_ok=True)
-    app.run(debug=True)  # HTTP dev server; use a proper WSGI for prod [web:3]
+    app.run(debug=True, use_reloader=False)  # HTTP dev server; disable reloader for heavy CUDA models

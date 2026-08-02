@@ -9,11 +9,27 @@ warnings.filterwarnings(
     message=r".*tf\.losses\.sparse_softmax_cross_entropy.*deprecated.*"
 )  # precise regex for that warning line [web:152]
 
-import re
+import torch
 from transformers import pipeline
 
-# Load zero-shot classifier (only once)
-music_classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
+_music_classifier = None
+
+def get_music_classifier():
+    global _music_classifier
+    if _music_classifier is not None:
+        return _music_classifier
+    try:
+        device = 0 if torch.cuda.is_available() else -1
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+        _music_classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli", device=device)
+    except Exception as e:
+        print(f"⚠️ Music classifier GPU load failed ({e}), falling back to CPU...")
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+        _music_classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli", device=-1)
+    return _music_classifier
+
 
 def is_music_transcript(transcript):
     """
@@ -37,9 +53,9 @@ def is_music_transcript(transcript):
         return True  # Strong lyrics pattern
 
     # --- 2. AI check: Zero-shot classification ---
-    text_sample = " ".join(lines[:15])  # Use first few lines for classification
-
-    result = music_classifier(
+    classifier = get_music_classifier()
+    result = classifier(
+        text_sample,
         text_sample,
         candidate_labels=[
             "music lyrics",

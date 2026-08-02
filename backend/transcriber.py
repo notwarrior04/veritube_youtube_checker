@@ -150,37 +150,96 @@ def transcribe_audio(audio_path="audio.mp3", video_title=""):
     else:
         print("")
 
-    # Load Whisper on GPU if available
-    print(f"🌀 Loading Whisper model [medium] on {DEVICE}...")
-    model = whisper.load_model("medium", device=DEVICE)  # prefers CUDA if available [web:1]
+_whisper_model = None
+
+def get_whisper_model(model_name="medium"):
+    global _whisper_model
+    if _whisper_model is not None:
+        return _whisper_model, DEVICE, GPU
+
+    target_device = DEVICE
+    is_gpu = GPU
+
+    if is_gpu:
+        try:
+            print(f"🌀 Loading Whisper model [{model_name}] on {target_device}...")
+            torch.cuda.empty_cache()
+            _whisper_model = whisper.load_model(model_name, device=target_device)
+            return _whisper_model, target_device, is_gpu
+        except Exception as e:
+            print(f"⚠️ Failed to load Whisper [{model_name}] on GPU: {e}")
+            torch.cuda.empty_cache()
+            if model_name != "small":
+                try:
+                    print("🔄 Retrying with Whisper model [small] on GPU...")
+                    _whisper_model = whisper.load_model("small", device=target_device)
+                    return _whisper_model, target_device, is_gpu
+                except Exception as e2:
+                    print(f"⚠️ Failed to load Whisper [small] on GPU: {e2}")
+                    torch.cuda.empty_cache()
+
+            print("🔄 Falling back to CPU for Whisper transcription...")
+            target_device = "cpu"
+            is_gpu = False
+
+    try:
+        _whisper_model = whisper.load_model("small", device=target_device)
+    except Exception:
+        _whisper_model = whisper.load_model("base", device=target_device)
+
+    return _whisper_model, target_device, is_gpu
+
+def transcribe_audio(audio_path="audio.mp3", video_title=""):
+    is_music = is_music_video(video_title)
+
+    if is_music:
+        print("🔍 Music video detected — searching for lyrics...")
+        lyrics = fetch_lyrics_from_serper(video_title, SERPER_API_KEY)
+        if lyrics:
+            print("🎵 Lyrics fetched successfully!")
+            with open("transcription.txt", "w", encoding="utf-8") as f:
+                f.write(lyrics)
+            return "en", lyrics
+        else:
+            print("❌ Lyrics not found. ⚠️ Falling back to Whisper transcription...")
+    else:
+        print("")
+
+    # Load Whisper lazily with memory fallback
+    model, use_device, is_gpu = get_whisper_model("medium")
 
     # Transcribe; fp16 only on GPU
-    print("🎧 Transcribing audio...")
+    print(f"🎧 Transcribing audio on {use_device}...")
     result = model.transcribe(
         audio_path,
         task="transcribe",
         language=None,
-        fp16=GPU  # True if GPU, False on CPU
+        fp16=is_gpu  # True if GPU, False on CPU
     )
     text = result["text"]
     lang = result["language"]
     print(f"📢 Detected Language: {lang}")
 
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+
     # Punctuation model to GPU if available
     print("⏳ Restoring punctuation...")
-    punct_model = PunctuationModel()  # internally uses a TokenClassification pipeline [web:138][web:19]
-
-    # Try to move underlying HF model to GPU (best-effort)
     try:
-        if GPU and hasattr(punct_model, "model"):
+        punct_model = PunctuationModel()  # internally uses a TokenClassification pipeline [web:138][web:19]
+        if is_gpu and hasattr(punct_model, "model"):
             punct_model.model.to(torch.device("cuda"))
+        punctuated = punct_model.restore_punctuation(text)
     except Exception as e:
-        print(f"ℹ️ Punctuation model stayed on CPU: {e}")
+        print(f"ℹ️ Punctuation model processing notice: {e}. Using raw text.")
+        punctuated = text
 
-    punctuated = punct_model.restore_punctuation(text)
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
 
     print("✅ Transcription done.")
     with open("transcription.txt", "w", encoding="utf-8") as f:
         f.write(punctuated)
 
     return lang, punctuated
+

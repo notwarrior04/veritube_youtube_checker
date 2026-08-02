@@ -1,83 +1,117 @@
 {% extends "base.html" %}
 {% block title %}Results · VeriTube{% endblock %}
 {% block content %}
-  <div class="d-flex justify-content-between align-items-center mb-4">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-5 mt-4">
     <div>
-      <h2 class="h4 mb-1">{{ result.title }}</h2>
-      <div class="text-secondary small">Language: {{ result.language }} · Music: {{ 'Yes' if result.music_video else 'No' }}</div>
+      <h2 class="h3 mb-2">{{ result.title }}</h2>
+      <div class="text-secondary small">ENGINE: <strong class="text-secondary fw-bold">{{ result.engine or 'Local Pipeline' }}</strong> · LANGUAGE: <strong>{{ result.language|upper }}</strong> · MUSIC VIDEO: <strong>{{ 'YES' if result.music_video else 'NO' }}</strong></div>
     </div>
-    <div class="d-flex gap-2">
-      <a class="btn btn-outline-light" href="{{ url_for('download_audio_route', job_id=job_id) }}">Download audio</a>
-      <a class="btn btn-primary" href="{{ url_for('index') }}">Analyze another</a>
+    <div class="d-flex gap-3">
+      <a class="btn btn-nb btn-nb-secondary text-nowrap" href="{{ url_for('download_audio_route', job_id=job_id) }}">Download Audio</a>
+      <a class="btn btn-nb text-nowrap" href="{{ url_for('index') }}">Analyze Another</a>
     </div>
   </div>
 
-  <div class="row g-4">
+  <div class="row g-4 align-items-start">
     <div class="col-lg-4">
-      <div class="card p-3 shadow-lg border-0 elevation">
-        <div class="d-flex justify-content-between align-items-center">
-          <span class="fw-semibold">Clickbait</span>
-          <span class="badge bg-{{ 'danger' if result.cb_score>=70 else 'warning' if result.cb_score>=40 else 'success' }}">{{ result.cb_score }}%</span>
+      <div class="card-nb">
+        <h3 class="h5 mb-4">Title Analysis</h3>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <span class="fw-bold">Clickbait Score</span>
+          <span class="badge-nb bg-{{ 'danger' if result.cb_score>=70 else 'warning' if result.cb_score>=40 else 'success' }}">{{ result.cb_score }}%</span>
         </div>
-        <div class="small text-secondary mt-2">{{ result.cb_reason }}</div>
-        <hr class="opacity-25">
-        <div class="d-flex justify-content-between align-items-center">
-          <span class="fw-semibold">Misleading</span>
-          <span class="badge bg-{{ 'danger' if result.ml_score>=70 else 'warning' if result.ml_score>=40 else 'success' }}">{{ result.ml_score }}%</span>
+        <div class="small text-secondary mb-4">{{ result.cb_reason }}</div>
+        
+        <hr>
+        
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <span class="fw-bold">Misleading Title</span>
+          <span class="badge-nb bg-{{ 'danger' if result.ml_score>=70 else 'warning' if result.ml_score>=40 else 'success' }}">{{ result.ml_score }}%</span>
         </div>
-        <div class="small text-secondary mt-2">{{ result.ml_reason }}</div>
+        <div class="small text-secondary">{{ result.ml_reason }}</div>
       </div>
 
-      <div class="card p-3 mt-4 shadow-lg border-0 elevation">
-        <div class="d-flex align-items-center justify-content-between mb-2">
-          <h6 class="mb-0">Fact‑check verdicts</h6>
-          <span class="text-secondary small">{{ result.fact_results|length }} total</span>
+      <div class="card-nb">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+          <h3 class="h5 mb-0">Fact‑Check Verdicts</h3>
+          {% if not result.music_video %}
+            <span class="badge-nb bg-secondary">{{ result.fact_results|length }} CLMS</span>
+          {% endif %}
         </div>
-        <ul class="list-group list-group-flush custom-list">
-          {% for r in result.fact_results %}
-            <li class="list-group-item bg-transparent text-light">
-              <div class="d-flex justify-content-between align-items-start clickable" data-idx="{{ loop.index }}">
-                <div class="me-2 text-truncate" style="max-width: 72%" title="{{ r.claim }}">{{ r.claim }}</div>
-                <span class="badge ms-2 bg-{{ 'success' if 'TRUE' in r.verdict.upper() else 'danger' if 'FALSE' in r.verdict.upper() else 'secondary' }}">{{ r.verdict }}</span>
-              </div>
-              <div class="reason small text-secondary mt-2 d-none" id="reason-{{ loop.index }}">
-                {{ r.reason }}
-              </div>
-            </li>
-          {% endfor %}
-        </ul>
-        <div class="small text-secondary mt-2">Tip: Click once to toggle the reason; double‑click to expand/collapse too.</div>
+        {% if result.music_video %}
+          <div class="p-3 border border-secondary text-secondary rounded-0 small">
+            🎵 <strong>Music Video / Song Detected</strong><br>
+            Lyrics and musical content do not contain testable factual claims. Fact-checking skipped (0 claims).
+          </div>
+        {% elif not result.fact_results %}
+          <div class="p-3 border border-secondary text-secondary rounded-0 small">
+            ℹ️ No verifiable factual claims were extracted from this transcript.
+          </div>
+        {% else %}
+          <ul class="list-group list-group-nb list-group-flush custom-list">
+            {% for r in result.fact_results %}
+              <li class="list-group-item bg-transparent">
+                <div class="d-flex justify-content-between align-items-start clickable" data-idx="{{ loop.index }}">
+                  <div class="me-2 claim-text text-truncate" id="claim-{{ loop.index }}" style="max-width: 72%; font-weight: 600;" title="{{ r.claim }}">{{ r.claim }}</div>
+                  <span class="badge-nb ms-2 flex-shrink-0 bg-{{ 'success' if 'TRUE' in r.verdict.upper() else 'danger' if 'FALSE' in r.verdict.upper() else 'secondary' }}">{{ r.verdict }}</span>
+                </div>
+                <div class="reason small text-secondary mt-3 d-none" id="reason-{{ loop.index }}">
+                  {{ r.reason }}
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+          <div class="small text-secondary mt-3">Tip: Click any claim to expand full claim text and explanation.</div>
+        {% endif %}
       </div>
     </div>
 
     <div class="col-lg-8">
-      <ul class="nav nav-tabs nav-tabs-modern">
+      <ul class="nav nav-tabs-nb">
         <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#summary">Summary</button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#transcript">Transcript</button></li>
       </ul>
 
-      <div class="tab-content border border-top-0 p-3 rounded-bottom shadow-lg glass-panel">
+      <div class="tab-content-nb">
         <div class="tab-pane fade show active" id="summary">
-          <pre class="mb-0 modern-pre"><code>{{ result.summary }}</code></pre>
+          <div class="summary-text-nb" id="summaryText">{{ result.summary }}</div>
         </div>
         <div class="tab-pane fade" id="transcript">
-          <div class="d-flex justify-content-end mb-2">
-            <button class="btn btn-sm btn-outline-light" id="copyTranscript">Copy</button>
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="fw-bold text-uppercase text-secondary small">Audio Transcript</span>
+            <button class="btn btn-nb btn-nb-light btn-sm" id="copyTranscript">Copy Transcript</button>
           </div>
-          <pre class="mb-0 modern-pre" id="transcriptText"><code>{{ result.transcript }}</code></pre>
+          <div class="transcript-box-nb" id="transcriptText">{{ result.transcript.strip() }}</div>
         </div>
       </div>
     </div>
   </div>
 
   <script>
-    // Toggle reasons on click and double-click
+    // Manually clean any symbols/hashes/asterisks before Summary, Overview, and Key Takeaways
+    const sumEl = document.getElementById('summaryText');
+    if (sumEl) {
+      sumEl.innerText = sumEl.innerText
+        .replace(/^[^\w\s]*(Summary|Overview|Key Takeaways)[^\w\s]*/gim, '$1')
+        .replace(/[#*_`~]+/g, '');
+    }
+
+    // Toggle full claim text and reasoning on click
     document.querySelectorAll('.clickable').forEach(el => {
       const idx = el.getAttribute('data-idx');
-      const reason = document.getElementById('reason-' + idx);
-      const toggle = () => reason.classList.toggle('d-none');
+      const claimEl = document.getElementById('claim-' + idx);
+      const reasonEl = document.getElementById('reason-' + idx);
+      
+      const toggle = () => {
+        if (claimEl) {
+          claimEl.classList.toggle('text-truncate');
+        }
+        if (reasonEl) {
+          reasonEl.classList.toggle('d-none');
+        }
+      };
+      
       el.addEventListener('click', toggle);
-      el.addEventListener('dblclick', toggle);
       el.style.cursor = 'pointer';
     });
 
@@ -86,7 +120,7 @@
     if (btn) {
       btn.addEventListener('click', async () => {
         const txt = document.getElementById('transcriptText').innerText;
-        try { await navigator.clipboard.writeText(txt); btn.textContent = 'Copied!'; setTimeout(()=>btn.textContent='Copy',1200); } catch(e){}
+        try { await navigator.clipboard.writeText(txt); btn.textContent = 'Copied!'; setTimeout(()=>btn.textContent='Copy Transcript',1200); } catch(e){}
       });
     }
   </script>

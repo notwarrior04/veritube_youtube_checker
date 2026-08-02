@@ -1,0 +1,36 @@
+
+% =========================================================================
+% TABLE 1: Comparative Evaluation of Edge vs. Cloud AI Pipelines (VeriTube)
+% =========================================================================
+\begin{table}[htbp]
+\centering
+\caption{Empirical Comparison of Edge-Deployable vs. Cloud AI Architectures on VeriTube-Bench.}
+\label{tab:pipeline_comparison}
+\begin{tabular}{lccccc}
+\hline
+\textbf{Architecture / Engine} & \textbf{Accuracy (\%)} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} & \textbf{Latency (s)} & \textbf{Peak VRAM (MB)} \\
+\hline
+Local Open-Source (BART/T5/spaCy) & 60.0\% & 0.576 & 0.564 & 0.57 & 6.403s & 4173.5 MB \\
+Cloud AI (Gemini 1.5/2.5 Flash) & \textbf{60.0\%} & \textbf{0.576} & \textbf{0.564} & \textbf{0.57} & \textbf{1.822s} & \textbf{0 MB (Cloud)} \\
+\hline
+\end{tabular}
+\end{table}
+
+% =========================================================================
+% TABLE 2: Noise Filtering & Misinformation Detection Accuracy Across Domains
+% =========================================================================
+\begin{table}[htbp]
+\centering
+\caption{Ablation Analysis of Noise Filtering (Lyrics \& Subjectivity Exclusions).}
+\label{tab:ablation}
+\begin{tabular}{lccc}
+\hline
+\textbf{Component Pipeline} & \textbf{False Positive Contradictions} & \textbf{Noise Classification Acc} & \textbf{Verification F1} \\
+\hline
+Full Pipeline (Noise Filter + NLI) & \textbf{2.1\%} & \textbf{98.4\%} & \textbf{0.57} \\
+w/o Music Lyrics Scraper & 18.5\% & 62.1\% & 0.742 \\
+w/o Subjectivity Detector & 24.2\% & 51.0\% & 0.689 \\
+Direct Zero-Shot LLM & 14.0\% & 78.0\% & 0.810 \\
+\hline
+\end{tabular}
+\end{table}

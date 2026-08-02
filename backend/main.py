@@ -1,12 +1,13 @@
-import sys
+import os, sys, warnings
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
+
 if sys.platform.startswith('win'):
     try:
         sys.stdout.reconfigure(encoding='utf-8')
         sys.stderr.reconfigure(encoding='utf-8')
     except Exception:
         pass
-
-import os, warnings
 
 # Hide TensorFlow INFO/WARNING logs (and oneDNN notes) without affecting execution
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"  # 0=all, 1=hide INFO, 2=hide INFO+WARNING, 3=hide all [web:150]
@@ -79,12 +80,7 @@ if __name__ == "__main__":
 
     # Step 4: Music video check using transcript (fallback)
     if is_music_transcript(transcript, metadata=metadata):
-        print("🎵 This appears to be a music video — skipping clickbait analysis and factual verification.")
-
-        print("\n📚 Fact Check Results:")
-        print("   📝 Claim: Lyrics / Music content")
-        print("   🔍 Verdict: 🎵 MUSIC VIDEO")
-        print("   💡 Reason: Lyrics detected — factual verification is not applicable.")
+        print("🎵 This appears to be a music video — skipping clickbait analysis and factual verification (0 claims).")
 
         print("\n🎼 Full Lyrics (from transcript):\n")
         for line in basic_sentence_splitter(transcript):

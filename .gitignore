@@ -9,3 +9,6 @@ backend/instance/
 *.pyo
 transcription.txt
 backend/transcription.txt
+.env
+.env.*
+*.env

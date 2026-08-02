@@ -1,6 +1,473 @@
 /* static/css/style.css */
-body { background: #f6f7fb; }
-.navbar { background: linear-gradient(90deg,#111827,#1f2937); }
-.card, .tab-content { border-radius: 12px; }
-pre { white-space: pre-wrap; word-break: break-word; }
-.badge { font-weight: 600; }
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;800&display=swap');
+
+:root {
+  /* Typography & Core dimensions */
+  --font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --nb-border-width: 3px;
+  
+  /* Light theme values (YouTube Light) */
+  --bg: #f9f9f9;      /* YouTube light gray background */
+  --fg: #000000;
+  --card-bg: #ffffff;
+  --border-color: #000000;
+  --shadow-color: #000000;
+  --muted: #606060;   /* YouTube secondary text gray */
+  
+  /* Neo-Brutalist YouTube palette */
+  --primary: #ff0000;       /* YouTube Brand Red */
+  --primary-hover: #cc0000;
+  --accent: #282828;        /* Slate black */
+  --accent-hover: #0f0f0f;
+  --success: #2ba84a;       /* Clean green */
+  --danger: #d00000;        /* Strong red */
+  --warning: #ffb703;       /* Warning orange-yellow */
+  --info: #028090;          /* Informative blue-teal */
+  
+  /* Dimensional values */
+  --card-shadow-offset: 8px;
+  --btn-shadow-offset: 4px;
+}
+
+/* Dark theme variables (YouTube Dark) */
+html[data-bs-theme="dark"] {
+  --bg: #0f0f0f;      /* YouTube app true dark background */
+  --fg: #ffffff;
+  --card-bg: #212121; /* YouTube app card dark gray */
+  --border-color: #3f3f3f; /* Crisp YouTube dark gray border */
+  --shadow-color: #000000; /* Sleek black drop shadow */
+  --muted: #aaaaaa;
+  
+  --primary: #ff0000;
+  --primary-hover: #cc0000;
+  --accent: #ffffff;
+  --accent-hover: #e0e0e0;
+}
+
+body {
+  font-family: var(--font-family) !important;
+  background-color: var(--bg) !important;
+  color: var(--fg) !important;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  padding-bottom: 3rem;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Animated Neo-Brutalist Grid Overlay (Handled dynamically by #vt-grid-canvas) */
+body::before {
+  display: none;
+}
+
+#vt-grid-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: -2;
+}
+
+/* Floating Ambient Red Glow Orb (Disabled in favor of cursor follower) */
+body::after {
+  display: none;
+}
+
+/* Subtle Ambient Red Mouse Glow Spotlight */
+#cursor-glow-orb {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 500px;
+  height: 500px;
+  margin-top: -250px;
+  margin-left: -250px;
+  background: radial-gradient(circle, 
+    rgba(220, 0, 30, 0.10) 0%, 
+    rgba(180, 0, 0, 0.04) 40%, 
+    rgba(0, 0, 0, 0) 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 1;
+  transition: opacity 0.4s ease, width 0.3s ease, height 0.3s ease;
+  will-change: transform;
+  filter: blur(20px);
+}
+
+#cursor-glow-orb.orb-hover {
+  width: 600px;
+  height: 600px;
+  margin-top: -300px;
+  margin-left: -300px;
+  background: radial-gradient(circle, 
+    rgba(220, 0, 30, 0.14) 0%, 
+    rgba(180, 0, 0, 0.05) 45%, 
+    rgba(0, 0, 0, 0) 75%);
+}
+
+#vt-cursor-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 99999;
+}
+
+/* Typography Overrides */
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+  font-family: var(--font-family) !important;
+  font-weight: 800 !important;
+  color: var(--fg) !important;
+  text-transform: uppercase;
+  letter-spacing: -0.5px;
+}
+
+.text-secondary {
+  color: var(--muted) !important;
+  font-weight: 500;
+}
+
+hr {
+  border-top: 2px solid var(--border-color);
+  opacity: 1 !important;
+  margin: 1.5rem 0;
+}
+
+/* Neo Brutalist Cards */
+.card-nb {
+  background-color: var(--card-bg);
+  border: var(--nb-border-width) solid var(--border-color);
+  box-shadow: var(--card-shadow-offset) var(--card-shadow-offset) 0px var(--shadow-color);
+  border-radius: 0px !important;
+  padding: 1.75rem;
+  margin-bottom: 1.5rem;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  position: relative;
+}
+
+/* Neo Brutalist Interactive Cards (Hover effect) */
+.card-nb-interactive {
+  cursor: pointer;
+}
+.card-nb-interactive:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: calc(var(--card-shadow-offset) + 3px) calc(var(--card-shadow-offset) + 3px) 0px var(--shadow-color);
+}
+
+/* Neo Brutalist YouTube Buttons System */
+.btn-nb {
+  font-family: var(--font-family);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #ffffff !important;
+  background-color: #cc0000 !important; /* Deep Rich Red */
+  border: 3px solid #3f3f3f !important;  /* Charcoal Dark Border */
+  box-shadow: 4px 4px 0px #000000 !important;
+  border-radius: 0px !important;
+  padding: 0.65rem 1.6rem;
+  transition: all 0.12s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+.btn-nb:hover, .btn-nb:focus {
+  transform: translate(-3px, -3px);
+  box-shadow: 7px 7px 0px #000000 !important;
+  background-color: #b30000 !important;
+  color: #ffffff !important;
+  outline: none;
+}
+.btn-nb:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px #000000 !important;
+}
+
+.btn-nb-secondary {
+  background-color: #272727 !important; /* YouTube Dark Slate */
+  color: #ffffff !important;
+  border: var(--nb-border-width) solid var(--border-color) !important;
+  box-shadow: 4px 4px 0px var(--shadow-color);
+}
+.btn-nb-secondary:hover, .btn-nb-secondary:focus {
+  background-color: #0f0f0f !important;
+  color: #ffffff !important;
+  transform: translate(-3px, -3px);
+  box-shadow: 7px 7px 0px var(--shadow-color);
+}
+
+.btn-nb-light {
+  background-color: #f2f2f2 !important; /* YouTube Off-White */
+  color: #0f0f0f !important;
+  border: var(--nb-border-width) solid var(--border-color) !important;
+  box-shadow: 4px 4px 0px var(--shadow-color);
+}
+.btn-nb-light:hover, .btn-nb-light:focus {
+  background-color: #e5e5e5 !important;
+  color: #0f0f0f !important;
+  transform: translate(-3px, -3px);
+  box-shadow: 7px 7px 0px var(--shadow-color);
+}
+
+/* Form Inputs */
+.input-nb {
+  font-family: var(--font-family);
+  font-weight: 600;
+  border: var(--nb-border-width) solid var(--border-color) !important;
+  border-radius: 0px !important;
+  background-color: var(--card-bg) !important;
+  color: var(--fg) !important;
+  padding: 0.8rem 1.2rem;
+  box-shadow: 4px 4px 0px rgba(0,0,0,0.15);
+  transition: all 0.12s ease;
+}
+.input-nb:focus {
+  box-shadow: 5px 5px 0px var(--primary);
+  outline: none;
+  border-color: var(--border-color) !important;
+}
+
+/* Badges */
+.badge-nb {
+  font-family: var(--font-family);
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #000000 !important;
+  border: 2px solid #000000;
+  box-shadow: 2px 2px 0px #000000;
+  border-radius: 0px !important;
+  padding: 0.4em 0.8em;
+  font-size: 0.82rem;
+  display: inline-block;
+  vertical-align: middle;
+}
+.badge-nb.bg-success { background-color: var(--success) !important; }
+.badge-nb.bg-danger { background-color: var(--danger) !important; }
+.badge-nb.bg-warning { background-color: var(--warning) !important; }
+.badge-nb.bg-secondary { background-color: var(--muted) !important; color: #ffffff !important; }
+
+/* Navbar styling */
+.vt-nav-nb {
+  background-color: var(--card-bg);
+  border-bottom: var(--nb-border-width) solid var(--border-color);
+  padding: 1.25rem 0;
+  margin-bottom: 2.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+  box-shadow: 0px 4px 0px rgba(0, 0, 0, 0.05);
+}
+.vt-brand-nb {
+  font-weight: 800;
+  font-size: 1.6rem;
+  text-transform: uppercase;
+  color: var(--fg) !important;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  letter-spacing: -0.5px;
+}
+.vt-logo-nb {
+  width: 32px;
+  height: 32px;
+  background-color: var(--primary);
+  border: var(--nb-border-width) solid var(--border-color);
+  box-shadow: 3px 3px 0px var(--border-color);
+  display: inline-block;
+}
+
+/* Toggle Theme Button */
+.vt-toggle-nb {
+  border: var(--nb-border-width) solid var(--border-color) !important;
+  color: var(--fg) !important;
+  background-color: var(--card-bg) !important;
+  box-shadow: 4px 4px 0px var(--shadow-color);
+  border-radius: 0px !important;
+  font-weight: 800;
+  padding: 0.55rem 1.1rem;
+  transition: all 0.12s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.vt-toggle-nb:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px var(--shadow-color);
+  background-color: var(--fg) !important;
+  color: var(--card-bg) !important;
+}
+.vt-toggle-nb:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px var(--shadow-color);
+}
+
+/* Tab Headers */
+.nav-tabs-nb {
+  border-bottom: var(--nb-border-width) solid var(--border-color) !important;
+  margin-bottom: 0px;
+}
+.nav-tabs-nb .nav-link {
+  border: var(--nb-border-width) solid transparent !important;
+  border-bottom: none !important;
+  color: var(--fg);
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 0.95rem;
+  border-radius: 0px !important;
+  padding: 0.6rem 1.5rem;
+  margin-right: 0.4rem;
+  transition: all 0.1s ease;
+}
+.nav-tabs-nb .nav-link.active {
+  background-color: var(--card-bg) !important;
+  border-color: var(--border-color) var(--border-color) transparent var(--border-color) !important;
+  transform: translateY(3px); /* aligns tab borders */
+  box-shadow: none !important;
+  color: var(--fg) !important;
+}
+.nav-tabs-nb .nav-link:not(.active):hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-color: transparent !important;
+}
+
+/* Tab Content Panels */
+.tab-content-nb {
+  background-color: var(--card-bg);
+  border: var(--nb-border-width) solid var(--border-color);
+  border-top: none;
+  box-shadow: var(--card-shadow-offset) var(--card-shadow-offset) 0px var(--shadow-color);
+  padding: 1.5rem;
+  margin: 0;
+  display: block !important;
+  height: auto !important;
+}
+
+/* List Groups */
+.list-group-nb .list-group-item {
+  background-color: var(--card-bg) !important;
+  color: var(--fg) !important;
+  border: var(--nb-border-width) solid var(--border-color) !important;
+  margin-bottom: 0.75rem;
+  border-radius: 0px !important;
+  font-weight: 700;
+  padding: 1rem;
+  transition: all 0.12s ease;
+}
+.list-group-nb .list-group-item:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0px var(--border-color);
+}
+
+/* Retro/Cyber Code Display */
+pre.modern-pre {
+  background-color: #0b0f19 !important;
+  color: #38bdf8 !important; /* Retro cyan code */
+  border: 2px solid var(--border-color);
+  border-radius: 0px !important;
+  padding: 1.25rem;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace !important;
+}
+
+/* Clean Plain Text Summary Display */
+.summary-text-nb {
+  font-family: var(--font-family);
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: var(--fg);
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-weight: 500;
+  padding: 0.25rem 0.1rem;
+  letter-spacing: 0.1px;
+}
+
+/* Tab Content Panels Display Rules */
+.tab-content-nb > .tab-pane {
+  display: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.tab-content-nb > .tab-pane.active,
+.tab-content-nb > .tab-pane.show.active {
+  display: block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.transcript-box-nb {
+  background-color: var(--card-bg);
+  color: var(--fg);
+  border: var(--nb-border-width) solid var(--border-color);
+  border-radius: 0px !important;
+  padding: 1.1rem 1.25rem;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: var(--font-family) !important;
+  margin-top: 0.5rem !important;
+  max-height: 520px;
+  overflow-y: auto;
+}
+
+/* Alert custom styling */
+.alert-nb {
+  background-color: var(--warning);
+  color: #000000 !important;
+  border: var(--nb-border-width) solid #000000;
+  box-shadow: var(--btn-shadow-offset) var(--btn-shadow-offset) 0px #000000;
+  border-radius: 0px !important;
+  font-weight: 700;
+}
+
+/* Neo-Brutalist Button Click Animation */
+.btn-nb-active-anim {
+  animation: nb-pop-click 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, nb-glow-pulse 1.2s infinite alternate ease-in-out;
+  background-color: #ff0000 !important;
+  color: #ffffff !important;
+  border-color: #000000 !important;
+}
+
+@keyframes nb-pop-click {
+  0% { transform: scale(1) translate(0, 0); box-shadow: 4px 4px 0px #000000; }
+  40% { transform: scale(0.94) translate(3px, 3px); box-shadow: 1px 1px 0px #000000; }
+  100% { transform: scale(1.02) translate(-3px, -3px); box-shadow: 8px 8px 0px #000000; }
+}
+
+@keyframes nb-glow-pulse {
+  0% { box-shadow: 7px 7px 0px #000000; }
+  100% { box-shadow: 9px 9px 0px #ff0000; }
+}
+
+/* Cyber Radar Spinner */
+.vt-radar-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 3px solid #ffffff;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: vt-spin 0.55s linear infinite;
+  vertical-align: middle;
+}
+
+@keyframes vt-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Form Container Pulse on Submit */
+.card-scanning-nb {
+  border-color: #ff0000 !important;
+  box-shadow: 10px 10px 0px #000000, 0 0 20px rgba(255, 0, 0, 0.35) !important;
+  transition: all 0.3s ease;
+}

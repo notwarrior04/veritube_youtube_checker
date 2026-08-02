@@ -17,13 +17,40 @@ import wikipedia
 from sentence_transformers import SentenceTransformer, util
 from transformers import pipeline
 from claim_rewriter import rewrite_claim
+from gemini_engine import is_gemini_available, gemini_extract_and_rewrite_claims, gemini_verify_claim_entailment
 
-# -------------------------------
-# Load NLP and Models
-# -------------------------------
-nlp = spacy.load("en_core_web_sm")
-embedder = SentenceTransformer("all-MiniLM-L6-v2")
-nli_model = pipeline("text-classification", model="facebook/bart-large-mnli")
+import torch
+
+_nlp = None
+_embedder = None
+_nli_model = None
+
+def get_nlp():
+    global _nlp
+    if _nlp is None:
+        _nlp = spacy.load("en_core_web_sm")
+    return _nlp
+
+def get_embedder():
+    global _embedder
+    if _embedder is None:
+        _embedder = SentenceTransformer("all-MiniLM-L6-v2")
+    return _embedder
+
+def get_nli_model():
+    global _nli_model
+    if _nli_model is None:
+        try:
+            device = 0 if torch.cuda.is_available() else -1
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+            _nli_model = pipeline("text-classification", model="facebook/bart-large-mnli", device=device)
+        except Exception as e:
+            print(f"⚠️ NLI GPU load failed ({e}), falling back to CPU...")
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+            _nli_model = pipeline("text-classification", model="facebook/bart-large-mnli", device=-1)
+    return _nli_model
 
 # -------------------------------
 # Text Helpers
@@ -33,12 +60,13 @@ def normalize(text):
     return re.sub(r'\W+', ' ', text).lower().strip()
 
 def semantic_similarity(a, b):
-    emb1 = embedder.encode(a, convert_to_tensor=True)
-    emb2 = embedder.encode(b, convert_to_tensor=True)
+    emb1 = get_embedder().encode(a, convert_to_tensor=True)
+    emb2 = get_embedder().encode(b, convert_to_tensor=True)
     return float(util.cos_sim(emb1, emb2)[0][0])
 
 def entailment_check(claim, context):
-    result = nli_model(f"{claim} </s> {context}", truncation=True)[0]
+    nli = get_nli_model()
+    result = nli(f"{claim} </s> {context}", truncation=True)[0]
     label, score = result['label'], result['score']
     if label == "ENTAILMENT" and score > 0.8:
         return "✅ TRUE", f"Entailment match from NLI (score: {round(score * 100)}%)"
@@ -47,14 +75,14 @@ def entailment_check(claim, context):
     return "⚠️ UNCERTAIN", "No strong entailment or contradiction found"
 
 def extract_years(text):
-    return [ent.text for ent in nlp(text).ents if ent.label_ == "DATE"]
+    return [ent.text for ent in get_nlp()(text).ents if ent.label_ == "DATE"]
 
 # -------------------------------
 # Claim Extraction
 # -------------------------------
 
 def extract_claims(text):
-    doc = nlp(text)
+    doc = get_nlp()(text)
     claims = []
     for sent in doc.sents:
         s = sent.text.strip()
@@ -64,6 +92,7 @@ def extract_claims(text):
         ):
             claims.append(s)
     return claims
+
 
 # -------------------------------
 # Load Local Claim DB
@@ -259,13 +288,49 @@ def run_fact_check(transcript_text):
 
     if is_music_transcript(text):
         print("🎵 This appears to be a music video — factual verification is not applicable.")
-        return [{
-            "claim": "Lyrics / Music content",
-            "verdict": "🎵 MUSIC VIDEO",
-            "reason": "Lyrics detected — factual verification is not applicable.",
-            "confidence": "N/A"
-        }]
+        return []
 
+    # --- Path A: Gemini API Engine ---
+    if is_gemini_available():
+        print("🚀 Using Gemini API Engine for Fact Checking...")
+        gemini_claims = gemini_extract_and_rewrite_claims(text)
+        if gemini_claims:
+            claim_db = load_claim_database()
+            results = []
+            for item in gemini_claims:
+                claim = item.get("original_claim", "")
+                rewritten_claim = item.get("rewritten_claim", claim)
+                is_sub = item.get("is_subjective", False)
+
+                if is_sub or is_subjective_or_philosophical(rewritten_claim):
+                    results.append({
+                        "claim": claim,
+                        "verdict": "🌀 SUBJECTIVE",
+                        "reason": "Philosophical/subjective — not verifiable by factual search (Gemini AI)",
+                        "confidence": "N/A"
+                    })
+                    continue
+
+                local_result = check_local_database(rewritten_claim, claim_db)
+                if local_result:
+                    results.append({"claim": claim, **local_result})
+                    continue
+
+                web_result = check_with_serper(rewritten_claim)
+                if web_result and web_result.get("verdict") != "⚠️ UNCERTAIN":
+                    results.append({"claim": claim, **web_result})
+                    continue
+
+                wiki_result = wikipedia_check(rewritten_claim)
+                if wiki_result:
+                    results.append({"claim": claim, **wiki_result})
+                else:
+                    results.append({"claim": claim, **(web_result or {"verdict": "⚠️ UNCERTAIN", "reason": "No verification source found", "confidence": "0%"})})
+            if results:
+                return results
+
+    # --- Path B: Local Open-Source ML Engine Fallback ---
+    print("⚙️ Using Local Open-Source Engine for Fact Checking...")
     claims = extract_claims(text)
     claim_db = load_claim_database()
     results = []

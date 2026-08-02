@@ -1,0 +1,64 @@
+{
+  "test_cases": [
+    {
+      "id": "case_001",
+      "category": "Health & Medical",
+      "title": "Sleep Deprivation Causes Heart Disease and Memory Loss",
+      "transcript": "Sleep deprivation is a serious issue affecting millions worldwide. Studies demonstrate that chronic lack of sleep increases the risk of cardiovascular disease and significantly impairs cognitive function and memory consolidation.",
+      "ground_truth_claims": [
+        "Chronic lack of sleep increases the risk of cardiovascular disease",
+        "Sleep deprivation impairs cognitive function and memory consolidation"
+      ],
+      "is_music": false,
+      "is_clickbait": false,
+      "ground_truth_verdict": "✅ TRUE"
+    },
+    {
+      "id": "case_002",
+      "category": "Science & Astronomy",
+      "title": "Scientists Discover Earth is Flat and NASA Hidden Proof!",
+      "transcript": "In this video we expose the biggest lie told to humanity. The Earth is flat and gravity is just an illusion created by atmospheric pressure.",
+      "ground_truth_claims": [
+        "The Earth is flat",
+        "Gravity is an illusion created by atmospheric pressure"
+      ],
+      "is_music": false,
+      "is_clickbait": true,
+      "ground_truth_verdict": "❌ FALSE"
+    },
+    {
+      "id": "case_003",
+      "category": "Music & Entertainment",
+      "title": "Official Music Video - Summer Night Memories (Lyrics)",
+      "transcript": "Yeah yeah baby under the moonlight\nDancing through the summer night\nYeah yeah baby under the moonlight\nDancing through the summer night",
+      "ground_truth_claims": [],
+      "is_music": true,
+      "is_clickbait": false,
+      "ground_truth_verdict": "🎵 MUSIC VIDEO"
+    },
+    {
+      "id": "case_004",
+      "category": "Philosophy",
+      "title": "What is the True Meaning of Life and Stardust?",
+      "transcript": "We are all stardust connected by the cosmic energy of the universe. The meaning of life is just to observe the infinite void and achieve inner peace.",
+      "ground_truth_claims": [
+        "We are all stardust connected by cosmic energy"
+      ],
+      "is_music": false,
+      "is_clickbait": false,
+      "ground_truth_verdict": "🌀 SUBJECTIVE"
+    },
+    {
+      "id": "case_005",
+      "category": "Technology & AI",
+      "title": "Artificial Intelligence Beat Human Doctors in Cancer Detection",
+      "transcript": "Recent clinical trials published in Nature show that deep learning models achieved 94% accuracy in detecting early-stage lung cancer compared to 88% by radiologist panels.",
+      "ground_truth_claims": [
+        "Deep learning models achieved 94% accuracy in detecting early-stage lung cancer"
+      ],
+      "is_music": false,
+      "is_clickbait": false,
+      "ground_truth_verdict": "✅ TRUE"
+    }
+  ]
+}

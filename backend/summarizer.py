@@ -11,6 +11,7 @@ import re
 import torch
 from concurrent.futures import ThreadPoolExecutor
 import logging
+from gemini_engine import is_gemini_available, gemini_summarize_transcript
 
 # Ensure NLTK punkt
 try:
@@ -31,24 +32,32 @@ BEAMS = 4                                          # beam size for determinism/q
 LENGTH_PENALTY = 1.0                               # conservative
 NO_REPEAT_NGRAM_SIZE = 3                           # reduce redundancy
 
-# -----------------------------
-# Initialize pipelines
-# -----------------------------
-def _make_summarizer(model_name):
-    return pipeline(
-        "summarization",
-        model=model_name,
-        device=DEVICE_PIPE
-    )  # [web:197]
+_summarizer_pipeline = None
+_led_summarizer_pipeline = None
 
-try:
-    summarizer = _make_summarizer(PRIMARY_MODEL)
-    refiner = _make_summarizer(REFINER_MODEL)
-    # Lazy LED init to avoid VRAM hit if not needed
-    led_summarizer = None
-except Exception as e:
-    logging.critical(f"❌ Failed to load summarization pipelines: {e}")
-    raise SystemExit("Failed to load summarizer/refiner.")  # [web:197]
+def get_summarizer():
+    global _summarizer_pipeline
+    if _summarizer_pipeline is not None:
+        return _summarizer_pipeline
+    try:
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+        _summarizer_pipeline = pipeline(
+            "summarization",
+            model=PRIMARY_MODEL,
+            device=DEVICE_PIPE
+        )
+    except Exception as e:
+        logging.warning(f"⚠️ GPU init for summarizer failed ({e}). Falling back to CPU...")
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+        _summarizer_pipeline = pipeline(
+            "summarization",
+            model=PRIMARY_MODEL,
+            device=-1
+        )
+    return _summarizer_pipeline
+
 
 # -----------------------------
 # Helpers
@@ -134,7 +143,7 @@ def _run_summarizer(pipe, text: str, target_ratio=0.6, max_cap=230, beams=BEAMS)
 
 def summarize_chunk(text: str) -> str:
     try:
-        return _run_summarizer(summarizer, text)
+        return _run_summarizer(get_summarizer(), text)
     except Exception as e:
         logging.error(f"⚠️ Summarization error: {e}")
         return text
@@ -148,7 +157,8 @@ def refine_summary(text: str) -> str:
         wc = len(text.split())
         max_len = min(220, wc)
         min_len = max(80, int(max_len * 0.5))
-        out = refiner(
+        pipe = get_summarizer()
+        out = pipe(
             text,
             max_length=max_len,
             min_length=min_len,
@@ -166,11 +176,14 @@ def refine_summary(text: str) -> str:
 
 def summarize_long(text: str) -> str:
     # For very long documents, use LED to reduce chunk seams [web:200]
-    global led_summarizer
+    global _led_summarizer_pipeline
     try:
-        if led_summarizer is None:
-            led_summarizer = pipeline("summarization", model=LONG_MODEL, device=DEVICE_PIPE)  # lazy init [web:200]
-        return _run_summarizer(led_summarizer, text, target_ratio=0.5, max_cap=400)
+        if _led_summarizer_pipeline is None:
+            try:
+                _led_summarizer_pipeline = pipeline("summarization", model=LONG_MODEL, device=DEVICE_PIPE)
+            except Exception:
+                _led_summarizer_pipeline = pipeline("summarization", model=LONG_MODEL, device=-1)
+        return _run_summarizer(_led_summarizer_pipeline, text, target_ratio=0.5, max_cap=400)
     except Exception as e:
         logging.warning(f"LED fallback failed ({e}); using chunked summarization.")
         # fallback to chunked path
@@ -178,6 +191,7 @@ def summarize_long(text: str) -> str:
         with ThreadPoolExecutor(max_workers=4) as ex:
             pieces = list(ex.map(summarize_chunk, chunks))
         return " ".join(pieces)
+
 
 # -----------------------------
 # Public API
@@ -188,6 +202,11 @@ def summarize_transcript(transcript: str, is_music: bool = False) -> str:
     cleaned = clean_transcript(transcript)
     if not cleaned:
         return "⚠️ Empty or invalid transcript."
+
+    if is_gemini_available():
+        res = gemini_summarize_transcript(cleaned, is_music=False)
+        if res:
+            return res
 
     # Route long inputs through LED first
     total_words = len(cleaned.split())
@@ -207,4 +226,4 @@ def summarize_transcript(transcript: str, is_music: bool = False) -> str:
     polished = grammar_polish(filtered)
     final = refine_summary(polished) if len(polished.split()) > 180 else polished
     out = final.strip()
-    return out if out else "⚠️ Could not generate a valid summary."
+    return gemini_engine.clean_plain_text_summary(out) if out else "⚠️ Could not generate a valid summary."
