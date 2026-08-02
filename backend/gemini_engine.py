@@ -31,14 +31,14 @@ def configure_gemini():
 # Initial configuration if key exists
 configure_gemini()
 
-def _get_model(preferred_model="gemini-3.6-flash"):
+def _get_model(preferred_model="gemini-2.0-flash"):
     configure_gemini()
     generation_config = {
         "temperature": 0.0,
         "top_p": 1.0,
         "top_k": 1,
     }
-    candidates = [preferred_model, "gemini-3.6-flash", "gemini-2.0-flash", "gemini-flash-latest", "gemini-2.5-pro", "gemini-pro"]
+    candidates = [preferred_model, "gemini-2.0-flash", "gemini-flash-latest", "gemini-2.5-pro", "gemini-pro"]
     for name in candidates:
         try:
             m = genai.GenerativeModel(model_name=name, generation_config=generation_config)
