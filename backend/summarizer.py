@@ -11,7 +11,7 @@ import re
 import torch
 from concurrent.futures import ThreadPoolExecutor
 import logging
-from gemini_engine import is_gemini_available, gemini_summarize_transcript
+from gemini_engine import is_gemini_available, gemini_summarize_transcript, clean_plain_text_summary
 
 # Ensure NLTK punkt
 try:
@@ -226,4 +226,4 @@ def summarize_transcript(transcript: str, is_music: bool = False) -> str:
     polished = grammar_polish(filtered)
     final = refine_summary(polished) if len(polished.split()) > 180 else polished
     out = final.strip()
-    return gemini_engine.clean_plain_text_summary(out) if out else "⚠️ Could not generate a valid summary."
+    return clean_plain_text_summary(out) if out else "⚠️ Could not generate a valid summary."
