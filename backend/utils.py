@@ -54,8 +54,8 @@ def is_music_transcript(transcript):
 
     # --- 2. AI check: Zero-shot classification ---
     classifier = get_music_classifier()
+    text_sample = transcript[:1000]
     result = classifier(
-        text_sample,
         text_sample,
         candidate_labels=[
             "music lyrics",

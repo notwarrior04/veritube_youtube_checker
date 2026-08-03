@@ -115,8 +115,9 @@
           }
         });
 
-        // Click Ripple Shockwave
+        // Click Ripple Shockwave (Disabled for top nav bar clicks)
         window.addEventListener('click', (e) => {
+          if (e.target && e.target.closest('.vt-nav-nb, nav')) return;
           spawnRipple(e.clientX, e.clientY, 320, 1.4);
           setTimeout(() => spawnRipple(e.clientX, e.clientY, 220, 1.0), 120);
         });
