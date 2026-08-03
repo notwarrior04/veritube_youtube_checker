@@ -25,19 +25,20 @@ flowchart TD
     C --> D{"Is it a Song / Music Video? (spaCy NLP & Heuristics)"}
     
     D -- "YES 🎵" --> E["Skip Fact-Check & Clickbait (0 Claims)"]
-    D -- "NO 🎙️" --> F["4. Clickbait & Misleading Analysis (SentenceTransformers)"]
+    D -- "NO 🎙️" --> F["4. Clickbait & Misleading Analysis (Gemini Flash / SentenceTransformers)"]
     
-    F --> G["5. Extract Factual Claims (Gemini Flash / spaCy)"]
-    G --> H{"Check Claims against Sources"}
+    F --> G["5. Extract & Normalize Claims (Gemini Flash / spaCy NLP)"]
+    G --> H["6. Web Search & Similarity Scoring (Serper.dev + SentenceTransformers)"]
     
-    H -- "Cloud AI Engine" --> I["Fact Verification (Gemini Flash + Web Grounding)"]
-    H -- "Edge AI Engine" --> J["Fact Verification (Serper.dev Search + Wikipedia API + BART NLI)"]
+    H --> I{"Verify Verdicts & NLI Entailment"}
+    I -- "Cloud Engine" --> J["Gemini Flash NLI Reasoning + Web Grounding"]
+    I -- "Edge Engine" --> K["Facebook BART MNLI + Wikipedia API"]
     
-    I --> K["6. Summarization & Verdict Assembly (Gemini Flash / BART-Large-CNN)"]
-    J --> K
-    E --> K
+    J --> L["7. Summarization & Verdict Assembly (Gemini Flash / BART-Large-CNN)"]
+    K --> L
+    E --> L
     
-    K --> L["7. Interactive Dashboard Display (Flask & HTML5 Canvas)"]
+    L --> M["8. Interactive Dashboard Display (Flask & HTML5 Canvas)"]
 ```
 
 ---
