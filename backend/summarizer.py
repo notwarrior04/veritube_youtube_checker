@@ -32,6 +32,7 @@ BEAMS = 4                                          # beam size for determinism/q
 LENGTH_PENALTY = 1.0                               # conservative
 NO_REPEAT_NGRAM_SIZE = 3                           # reduce redundancy
 
+import gc
 _summarizer_pipeline = None
 _led_summarizer_pipeline = None
 
@@ -42,18 +43,29 @@ def get_summarizer():
     try:
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
-        _summarizer_pipeline = pipeline(
-            "summarization",
-            model=PRIMARY_MODEL,
-            device=DEVICE_PIPE
-        )
+            _summarizer_pipeline = pipeline(
+                "summarization",
+                model=PRIMARY_MODEL,
+                device=0
+            )
+        else:
+            _summarizer_pipeline = pipeline(
+                "summarization",
+                model=PRIMARY_MODEL,
+                device=-1
+            )
     except Exception as e:
         logging.warning(f"⚠️ GPU init for summarizer failed ({e}). Falling back to CPU...")
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
+            gc.collect()
+        from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
+        tok = AutoTokenizer.from_pretrained(PRIMARY_MODEL)
+        mod = AutoModelForSeq2SeqLM.from_pretrained(PRIMARY_MODEL)
         _summarizer_pipeline = pipeline(
             "summarization",
-            model=PRIMARY_MODEL,
+            model=mod,
+            tokenizer=tok,
             device=-1
         )
     return _summarizer_pipeline
