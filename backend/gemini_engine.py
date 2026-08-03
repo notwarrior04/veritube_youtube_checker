@@ -31,21 +31,44 @@ def configure_gemini():
 # Initial configuration if key exists
 configure_gemini()
 
-def _get_model(preferred_model="gemini-1.5-flash"):
+_cached_working_model = None
+
+def _get_model():
+    global _cached_working_model
+    if _cached_working_model is not None:
+        return _cached_working_model
+
     configure_gemini()
     generation_config = {
         "temperature": 0.0,
         "top_p": 1.0,
         "top_k": 1,
     }
-    candidates = [preferred_model, "gemini-1.5-flash", "gemini-flash-latest", "gemini-2.0-flash", "gemini-pro"]
+    candidates = [
+        "gemini-3.6-flash",
+        "gemini-3.5-flash",
+        "gemini-3-flash-preview",
+        "gemini-2.0-flash",
+        "gemini-flash-latest",
+        "gemini-2.5-pro",
+        "gemini-pro-latest",
+        "gemini-pro"
+    ]
     for name in candidates:
         try:
             m = genai.GenerativeModel(model_name=name, generation_config=generation_config)
-            return m
-        except Exception:
+            # Validate model works with generate_content
+            _ = m.generate_content("test ping")
+            _cached_working_model = m
+            print(f"✅ Verified active Gemini model: {name}")
+            return _cached_working_model
+        except Exception as e:
+            print(f"ℹ️ Model '{name}' test failed ({type(e).__name__}). Trying next candidate...")
             continue
-    return genai.GenerativeModel(model_name="gemini-1.5-flash", generation_config=generation_config)
+
+    fallback = genai.GenerativeModel(model_name="gemini-2.0-flash", generation_config=generation_config)
+    _cached_working_model = fallback
+    return fallback
 
 def gemini_extract_and_rewrite_claims(transcript_text):
     """

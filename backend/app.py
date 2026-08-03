@@ -118,7 +118,7 @@ def analyze():
         gc.collect()
     language, transcript = transcribe_audio(audio_target, video_title=title)
 
-    engine_name = "Cloud AI (Gemini 1.5 Flash)" if is_gemini_available() else "Edge AI (Local PyTorch / spaCy)"
+    engine_name = "Cloud AI (Gemini Flash)" if is_gemini_available() else "Edge AI (Local PyTorch / spaCy)"
 
     # 4) Music transcript fallback path
     if is_music_transcript(transcript, metadata=meta):
